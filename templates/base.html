@@ -21,6 +21,7 @@
             display: grid;
             place-items: center;
             margin: 0px;
+            overflow-x: hidden !important;
         }
 
         .title {
@@ -70,18 +71,18 @@
 
         button {
             cursor: pointer;
-        }
-
-        #long-running-operation {
             padding: 0.5rem 2rem;
             font-size: 1.5rem;
         }
 
         #end-story {
             position: fixed;
-            /* visibility: hidden; */
+            visibility: hidden;
             bottom: 5vh;
             right: 2vw;
+            padding: 0.25rem 1rem;
+            font-size: 1rem;
+            z-index: 10;
         }
 
         p {
@@ -93,15 +94,169 @@
             border-radius: 0.25rem;
         }
 
+        .Loader {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            place-items: center;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: #1d1d1d;
+            transition: all ease-out 1s;
+            transform: translateY(0vh);
+            z-index: 100;
+        }
+
+        /* Credit goes to: https://codepen.io/iddar/pen/xwXowq */
+        .pac-man {
+            border-radius: 50%;
+            margin: 0 auto;
+            margin-top: 5em;
+            border-radius: 100em 100em 0 0;
+            background: #f00;
+            transform-origin: bottom;
+            -webkit-animation: eating-top 0.5s infinite;
+            animation: eating-top 0.5s infinite;
+        }
+
+        .pac-man,
+        .pac-man::before {
+            width: 70px;
+            height: calc(70px/2);
+            background: #fed75a;
+        }
+
+        .pac-man::before {
+            content: '';
+            display: block;
+            margin-top: calc(70px/2);
+            position: absolute;
+            transform-origin: top;
+            border-radius: 0 0 100em 100em;
+            transform: rotate(80deg);
+            -webkit-animation: eating-bottom 0.5s infinite;
+            animation: eating-bottom 0.5s infinite;
+        }
+
+        .pac-man::after {
+            position: absolute;
+            border-radius: 100em;
+            content: '';
+            display: block;
+            height: 20px;
+            width: 20px;
+            margin-top: calc((70px / 2) - 10px);
+            margin-left: calc((70px / 2) - 10px);
+            transform-origin: center;
+            -webkit-animation: center 0.5s infinite, ball 0.5s -0.33s infinite linear;
+            animation: center 0.5s infinite, ball 0.5s -0.33s infinite linear;
+        }
+
+        @-webkit-keyframes eating-top {
+            0% {
+                transform: rotate(-40deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(-40deg);
+            }
+        }
+
+        @keyframes eating-top {
+            0% {
+                transform: rotate(-40deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(-40deg);
+            }
+        }
+
+        @-webkit-keyframes eating-bottom {
+            0% {
+                transform: rotate(80deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(80deg);
+            }
+        }
+
+        @keyframes eating-bottom {
+            0% {
+                transform: rotate(80deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(80deg);
+            }
+        }
+
+        @-webkit-keyframes center {
+            0% {
+                transform: rotate(40deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(40deg);
+            }
+        }
+
+        @keyframes center {
+            0% {
+                transform: rotate(40deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(40deg);
+            }
+        }
+
+        @-webkit-keyframes ball {
+            0% {
+                opacity: 0.7;
+                box-shadow: 70px 0 0 0 #fed75a, 120px 0 0 0 #fed75a, 170px 0 0 0 #fed75a, 220px 0 0 0 #fed75a;
+            }
+            100% {
+                box-shadow: 20px 0 0 0 #fed75a, 70px 0 0 0 #fed75a, 120px 0 0 0 #fed75a, 170px 0 0 0 #fed75a;
+            }
+            }
+            @keyframes ball {
+            0% {
+                opacity: 0.7;
+                box-shadow: 70px 0 0 0 #fed75a, 120px 0 0 0 #fed75a, 170px 0 0 0 #fed75a, 220px 0 0 0 #fed75a;
+            }
+            100% {
+                box-shadow: 20px 0 0 0 #fed75a, 70px 0 0 0 #fed75a, 120px 0 0 0 #fed75a, 170px 0 0 0 #fed75a;
+            }
+        }
+
+
     </style>
 
+    <section class="Loader" id="loader">
+        <div class='pac-man'> </div>
+    </section>
     <!-- HTML Tags -->
     <div>
         <h1 class="title"> Story book generation </h1>
         <h3 id="promptTitle"> Write a story about ...</h3>
         <div>
             <input type="text" id="prompt" autocomplete="off" placeholder="¯ \ _ (ツ) _ / ¯"/>
-            <button id="long-running-operation"> Render </button>
+            <button id="generateStory"> Render </button>
         </div>
     </div>
     <div class="contentWrapper" id="content">
@@ -111,17 +266,33 @@
     <!-- Javascript Coding -->
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
     <script type="text/javascript" charset="utf-8" defer>
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
-        let button = document.getElementById('long-running-operation');
+        const deLoading= () => {
+            document.getElementById("loader").style.transform = "translateY(-100vh)";
+            document.querySelector("body").style.overflowY = "initial";
+        }
 
-        button.addEventListener('click', () => {
+        const loading= () => {
+            document.getElementById("loader").style.transform = "translateY(0vh)";
+            document.querySelector("body").style.overflowY = "hidden";
+        }
+
+        window.onload = (event) => {
+            deLoading();
+        }
+
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        // Action 1 -> Generate Content
+        document.getElementById("generateStory").addEventListener('click', () => {
+            loading()
             input = document.getElementById("prompt").value;
-            socket.emit('long-running-event', {data: input});
+            socket.emit('generateContent', {data: input});
             // document.getElementById("content").innerHTML = "Loading..."
             document.getElementById("prompt").value = ""
         });
 
         socket.on('processing-finished', function (data) {
+            deLoading();
             const node = document.createElement("p");
             const title = document.createElement("h4");
             const divWrapper = document.createElement("div");
@@ -142,6 +313,12 @@
             document.getElementById("promptTitle").innerHTML = "Continue the story with ...";
             document.getElementById("end-story").style.visibility = "initial";
         });
+
+        // Action 2 -> End Content; Generate book (Maybe printable PDF)
+        document.getElementById("end-story").addEventListener('click', () => {
+
+        })
+
     </script>
     {% block content %}
     {% endblock %}

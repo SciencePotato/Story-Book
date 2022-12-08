@@ -36,8 +36,8 @@ imageUrls = []
 def hello():
     return render_template("home.html", data=env("GITHUB"))
 
-@socketio.on('long-running-event')
-def handle_my_custom_event(input):
+@socketio.on('generateContent')
+def generateContent(input):
     time.sleep(1)
     global passagePrompt 
     global openAI_configuration
@@ -83,9 +83,13 @@ def handle_my_custom_event(input):
 
     model = replicate.models.get("prompthero/openjourney")
     version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
-    output = version.predict(prompt=imagePrompt)
+    version.predict(prompt=imagePrompt)
 
     emit('processing-finished', {"prompt": passagePrompt, "content": passageList[-1], "image": replicate.predictions.list()[0].output[0]})
+
+@socketio.on('endContent')
+def endContent(input):
+    pass
 
 if __name__ == "__main__":
     # app.run(debug=True)
