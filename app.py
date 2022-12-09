@@ -27,7 +27,6 @@ socketio = SocketIO(app)
 passage = ""
 passageList = []
 passagePrompt = ""
-storyCount = 0
 title = ""
 imagePrompt = ""
 imageUrls = []
@@ -85,10 +84,34 @@ def generateContent(input):
     version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
     version.predict(prompt=imagePrompt)
 
+    imageUrls.append(replicate.predictions.list()[0].output[0])
+
     emit('processing-finished', {"prompt": passagePrompt, "content": passageList[-1], "image": replicate.predictions.list()[0].output[0]})
 
 @socketio.on('endContent')
 def endContent(input):
+    time.sleep(1)
+    global passagePrompt 
+    global openAI_configuration
+    global passage
+
+    response = openai.Completion.create(
+        model = openAI_configuration["model"],
+        prompt = "Generate a title for the following story:" + passage,
+        temperature = openAI_configuration["temperature"],
+        max_tokens = openAI_configuration["max_tokens"],
+        top_p = openAI_configuration["top_p"],
+        frequency_penalty = openAI_configuration["frequency_penalty"],
+        presence_penalty = openAI_configuration["presence_penalty"]
+    )
+
+    # imagePrompt = "mdjrny-v4 style " + response["choices"][0].text
+
+    # model = replicate.models.get("prompthero/openjourney")
+    # version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
+    # version.predict(prompt=imagePrompt)
+
+    emit('end-finished', {"title": response["choices"][0].text})
     pass
 
 if __name__ == "__main__":

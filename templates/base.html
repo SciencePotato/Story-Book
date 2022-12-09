@@ -259,6 +259,7 @@
             <button id="generateStory"> Render </button>
         </div>
     </div>
+    <div class="storyIntro"></div>
     <div class="contentWrapper" id="content">
     </div>
     <button id="end-story"> End Story... </button>
@@ -316,7 +317,16 @@
 
         // Action 2 -> End Content; Generate book (Maybe printable PDF)
         document.getElementById("end-story").addEventListener('click', () => {
+            loading()
+            document.getElementById("end-story").style.visibility = "hidden";
+            document.getElementById("generateStory").style.visibility = "hidden";
+            socket.emit("endContent", {data: "Null"});
+        })
 
+        socket.on('end-finished', function (data) {
+            deLoading()
+            console.log(data);
+            console.log(data.title)
         })
 
     </script>
