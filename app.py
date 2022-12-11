@@ -3,9 +3,8 @@ from flask_socketio import SocketIO, emit
 import time
 import replicate
 import openai
+import random
 from environs import Env
-
-
 
 env = Env()
 env.read_env()
@@ -106,9 +105,11 @@ def endContent(input):
         frequency_penalty = openAI_configuration["frequency_penalty"],
         presence_penalty = openAI_configuration["presence_penalty"]
     )
+    image_styles_list = ["Stained glass", "Blackboard", "Crayon", "Calligraphy", "Graphite", "Noir line art", "Cinematic", "ZBrush", "Airbrush", "Caricature", "Origami", "Blueprint", "Drypoint", "Minimalist", "Tarot card", "Chalk", "Psychedelic", "Labor poster", "Ancient greece", "8 Bit", "Marble", "Neon", "Kaleidoscope", "Gold", "Splatter", "Wet paint", "Pop art", "Monochrome", "Line drawing", "Cyberpunk", "Ghibli", "Oil painting", "Sketch", "Spray paint", "Cubism", "Cyanotype", "Drawing", "Pixar", "Manga"]
+    image_style = random.choice(image_styles_list)
 
-    imagePrompt = "mdjrny-v4 style, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration, 8k" + response["choices"][0].text
-
+    imagePrompt = "landscape, " + image_style + " styled, intricate, highly detailed, smooth, sharp focus, 8k" + response["choices"][0].text
+    
     model = replicate.models.get("prompthero/openjourney")
     # model = replicate.models.get("stability-ai/stable-diffusion")
     version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
