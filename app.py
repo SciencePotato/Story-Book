@@ -17,8 +17,8 @@ openAI_configuration = {
   "temperature": 0.7,
   "max_tokens": 512,
   "top_p": 1,
-  "frequency_penalty": 0.2,
-  "presence_penalty": 0.1
+  "frequency_penalty": 0.5,
+  "presence_penalty": 1.5 
 }
 
 app = Flask(__name__)
@@ -33,7 +33,7 @@ imageUrls = []
 
 @app.route('/')
 def hello():
-    return render_template("home.html", data=env("GITHUB"))
+    return render_template("home.html", data="Null")
 
 @socketio.on('generateContent')
 def generateContent(input):
@@ -44,9 +44,9 @@ def generateContent(input):
 
     passagePrompt = input["data"]
     if passage != "":
-        openAI_configuration["prompt"] =  passage + "\nContinue the story with: " + passagePrompt
+        openAI_configuration["prompt"] =  passage + " Continue the story with a story arc: " + passagePrompt
     else:
-        openAI_configuration["prompt"] =  "Write a story about: " + passagePrompt
+        openAI_configuration["prompt"] =  "Write a complete story, with a problem and solution about: " + passagePrompt
 
     response = openai.Completion.create(
         model = openAI_configuration["model"],
@@ -78,12 +78,12 @@ def generateContent(input):
         presence_penalty = openAI_configuration["presence_penalty"]
     )
 
-    imagePrompt = "Ghibli style, hd, dramatic lighting, detailed," + response["choices"][0].text
+    imagePrompt = "mdjrny-v4 style" + response["choices"][0].text
 
-    # model = replicate.models.get("prompthero/openjourney")
-    model = replicate.models.get("stability-ai/stable-diffusion")
-    # version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
-    version = model.versions.get("6359a0cab3ca6e4d3320c33d79096161208e9024d174b2311e5a21b6c7e1131c")
+    model = replicate.models.get("prompthero/openjourney")
+    # model = replicate.models.get("stability-ai/stable-diffusion")
+    version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
+    # version = model.versions.get("6359a0cab3ca6e4d3320c33d79096161208e9024d174b2311e5a21b6c7e1131c")
     version.predict(prompt=imagePrompt)
 
     imageUrls.append(replicate.predictions.list()[0].output[0])
@@ -107,12 +107,12 @@ def endContent(input):
         presence_penalty = openAI_configuration["presence_penalty"]
     )
 
-    imagePrompt = "Ghibli style, hd, dramatic lighting, detailed," + response["choices"][0].text
+    imagePrompt = "mdjrny-v4 style, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration, 8k" + response["choices"][0].text
 
-    # model = replicate.models.get("prompthero/openjourney")
-    model = replicate.models.get("stability-ai/stable-diffusion")
-    # version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
-    version = model.versions.get("6359a0cab3ca6e4d3320c33d79096161208e9024d174b2311e5a21b6c7e1131c")
+    model = replicate.models.get("prompthero/openjourney")
+    # model = replicate.models.get("stability-ai/stable-diffusion")
+    version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
+    # version = model.versions.get("6359a0cab3ca6e4d3320c33d79096161208e9024d174b2311e5a21b6c7e1131c")
     version.predict(prompt=imagePrompt)
 
     emit('end-finished', {"title": response["choices"][0].text, "image": replicate.predictions.list()[0].output[0]})

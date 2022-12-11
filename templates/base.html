@@ -52,8 +52,12 @@
             margin-right: 2vw;
             font-size: 1.5rem;
             border: none;
-            background-color: rgb(252, 252, 252);
-            border-bottom: 2px solid #fed75a;
+            border-bottom: 2px solid #1d1d1d;
+            color: #1d1d1d;
+        }
+
+        input::placeholder {
+            color: #1d1d1d;
         }
 
         input:focus {
@@ -99,7 +103,7 @@
             height: 100vh;
             display: flex;
             place-items: center;
-            position: absolute;
+            position: fixed;
             left: 0;
             top: 0;
             background-color: #1d1d1d;
@@ -244,10 +248,42 @@
             }
         }
 
+        button {
+            background-color: white;
+            border-radius: 0.25rem;
+            border: solid 2px #1d1d1d;
+            color: #1d1d1d;
+            transition: ease-out 0.25s all;
+        }
+
+        button:hover {
+            background-color: #1d1d1d;
+            border-radius: 0.25rem;
+            border: solid 2px #fed75a;
+            color: #fed75a;
+        }
+
         .storyIntro {
             margin-top: 5rem;
         }
 
+        #printView {
+            visibility: hidden;
+            margin-bottom: 5rem;
+            width: 30vw;
+        }
+
+        @media print {
+            #printView{
+                display: none;
+                visibility: hidden;
+            }
+
+            .Loader{
+                display: none;
+                visibility: hidden;
+            }
+        }
     </style>
 
     <section class="Loader" id="loader">
@@ -265,6 +301,7 @@
     <div class="storyIntro" id="story-Intro"></div>
     <div class="contentWrapper" id="content">
     </div>
+    <button id="printView" onclick="window.print()"> Print </button>
     <button id="end-story"> End Story... </button>
 
     <!-- Javascript Coding -->
@@ -323,6 +360,7 @@
             loading()
             document.getElementById("end-story").style.visibility = "hidden";
             document.getElementById("generator").style.visibility = "hidden";
+            document.getElementById("printView").style.visibility = "initial";
             document.getElementById("generator").style.display = "none";
             socket.emit("endContent", {data: "Null"});
         })
