@@ -78,10 +78,12 @@ def generateContent(input):
         presence_penalty = openAI_configuration["presence_penalty"]
     )
 
-    imagePrompt = "mdjrny-v4 style " + response["choices"][0].text
+    imagePrompt = "Ghibli style, hd, dramatic lighting, detailed," + response["choices"][0].text
 
-    model = replicate.models.get("prompthero/openjourney")
-    version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
+    # model = replicate.models.get("prompthero/openjourney")
+    model = replicate.models.get("stability-ai/stable-diffusion")
+    # version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
+    version = model.versions.get("6359a0cab3ca6e4d3320c33d79096161208e9024d174b2311e5a21b6c7e1131c")
     version.predict(prompt=imagePrompt)
 
     imageUrls.append(replicate.predictions.list()[0].output[0])
@@ -105,10 +107,12 @@ def endContent(input):
         presence_penalty = openAI_configuration["presence_penalty"]
     )
 
-    imagePrompt = "mdjrny-v4 style " + response["choices"][0].text
+    imagePrompt = "Ghibli style, hd, dramatic lighting, detailed," + response["choices"][0].text
 
-    model = replicate.models.get("prompthero/openjourney")
-    version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
+    # model = replicate.models.get("prompthero/openjourney")
+    model = replicate.models.get("stability-ai/stable-diffusion")
+    # version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
+    version = model.versions.get("6359a0cab3ca6e4d3320c33d79096161208e9024d174b2311e5a21b6c7e1131c")
     version.predict(prompt=imagePrompt)
 
     emit('end-finished', {"title": response["choices"][0].text, "image": replicate.predictions.list()[0].output[0]})
