@@ -105,13 +105,13 @@ def endContent(input):
         presence_penalty = openAI_configuration["presence_penalty"]
     )
 
-    # imagePrompt = "mdjrny-v4 style " + response["choices"][0].text
+    imagePrompt = "mdjrny-v4 style " + response["choices"][0].text
 
-    # model = replicate.models.get("prompthero/openjourney")
-    # version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
-    # version.predict(prompt=imagePrompt)
+    model = replicate.models.get("prompthero/openjourney")
+    version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
+    version.predict(prompt=imagePrompt)
 
-    emit('end-finished', {"title": response["choices"][0].text})
+    emit('end-finished', {"title": response["choices"][0].text, "image": replicate.predictions.list()[0].output[0]})
     pass
 
 if __name__ == "__main__":

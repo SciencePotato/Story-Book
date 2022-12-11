@@ -244,6 +244,9 @@
             }
         }
 
+        .storyIntro {
+            margin-top: 5rem;
+        }
 
     </style>
 
@@ -251,7 +254,7 @@
         <div class='pac-man'> </div>
     </section>
     <!-- HTML Tags -->
-    <div>
+    <div id="generator">
         <h1 class="title"> Story book generation </h1>
         <h3 id="promptTitle"> Write a story about ...</h3>
         <div>
@@ -259,7 +262,7 @@
             <button id="generateStory"> Render </button>
         </div>
     </div>
-    <div class="storyIntro"></div>
+    <div class="storyIntro" id="story-Intro"></div>
     <div class="contentWrapper" id="content">
     </div>
     <button id="end-story"> End Story... </button>
@@ -319,14 +322,29 @@
         document.getElementById("end-story").addEventListener('click', () => {
             loading()
             document.getElementById("end-story").style.visibility = "hidden";
-            document.getElementById("generateStory").style.visibility = "hidden";
+            document.getElementById("generator").style.visibility = "hidden";
+            document.getElementById("generator").style.display = "none";
             socket.emit("endContent", {data: "Null"});
         })
 
         socket.on('end-finished', function (data) {
             deLoading()
-            console.log(data);
-            console.log(data.title)
+
+            const node = document.createElement("h1");
+            const divWrapper = document.createElement("div");
+            const image = document.createElement("img")
+
+            divWrapper.style.display = "flex";
+            divWrapper.style.justifyContent = "center";
+            divWrapper.style.alignContent= "center";
+
+            node.innerHTML = data.title
+            image.src = data.image
+
+            divWrapper.appendChild(image);
+            document.getElementById("story-Intro").appendChild(node);
+            document.getElementById("story-Intro").appendChild(divWrapper);
+
         })
 
     </script>
