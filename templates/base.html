@@ -347,8 +347,8 @@
             divWrapper.style.justifyContent = "center";
             divWrapper.style.alignContent= "center";
 
-            node.innerHTML = data.content;
-            title.innerHTML = "Prompt: " + data.prompt;
+            node.textContent = data.content;
+            title.textContent = "Prompt: " + data.prompt;
             image.src = data.image
 
             divWrapper.appendChild(image);
@@ -380,7 +380,7 @@
             divWrapper.style.justifyContent = "center";
             divWrapper.style.alignContent= "center";
 
-            node.innerHTML = data.title
+            node.textContent = data.title
             image.src = data.image
 
             divWrapper.appendChild(image);
