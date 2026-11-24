@@ -83,11 +83,11 @@ def generateContent(input):
     # model = replicate.models.get("stability-ai/stable-diffusion")
     version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
     # version = model.versions.get("6359a0cab3ca6e4d3320c33d79096161208e9024d174b2311e5a21b6c7e1131c")
-    version.predict(prompt=imagePrompt)
+    image_output = version.predict(prompt=imagePrompt)
 
-    imageUrls.append(replicate.predictions.list()[0].output[0])
+    imageUrls.append(image_output[0])
 
-    emit('processing-finished', {"prompt": passagePrompt, "content": passageList[-1], "image": replicate.predictions.list()[0].output[0]})
+    emit('processing-finished', {"prompt": passagePrompt, "content": passageList[-1], "image": image_output[0]})
 
 @socketio.on('endContent')
 def endContent(input):
@@ -114,9 +114,9 @@ def endContent(input):
     # model = replicate.models.get("stability-ai/stable-diffusion")
     version = model.versions.get("9936c2001faa2194a261c01381f90e65261879985476014a0a37a334593a05eb")
     # version = model.versions.get("6359a0cab3ca6e4d3320c33d79096161208e9024d174b2311e5a21b6c7e1131c")
-    version.predict(prompt=imagePrompt)
+    image_output = version.predict(prompt=imagePrompt)
 
-    emit('end-finished', {"title": response["choices"][0].text, "image": replicate.predictions.list()[0].output[0]})
+    emit('end-finished', {"title": response["choices"][0].text, "image": image_output[0]})
     pass
 
 if __name__ == "__main__":
