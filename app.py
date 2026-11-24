@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 import time
 import replicate
@@ -29,6 +29,7 @@ passagePrompt = ""
 title = ""
 imagePrompt = ""
 imageUrls = []
+_stories = {}
 
 @app.route('/')
 def hello():
@@ -36,20 +37,23 @@ def hello():
 
 @socketio.on('generateContent')
 def generateContent(input):
+    if not isinstance(input, dict) or not isinstance(input.get("data"), str) or not input["data"].strip():
+        emit("generation-error", {"message": "Provide a non-empty story prompt"})
+        return
     time.sleep(1)
-    global passagePrompt 
-    global openAI_configuration
-    global passage
+    story = _stories.setdefault(request.sid, {"passage": "", "parts": []})
+    passage = story["passage"]
+    passageList = story["parts"]
 
     passagePrompt = input["data"]
     if passage != "":
-        openAI_configuration["prompt"] =  passage + " Continue the story with a story arc: " + passagePrompt
+        prompt = passage + " Continue the story with a story arc: " + passagePrompt
     else:
-        openAI_configuration["prompt"] =  "Write a complete story, with a problem and solution about: " + passagePrompt
+        prompt = "Write a complete story, with a problem and solution about: " + passagePrompt
 
     response = openai.Completion.create(
         model = openAI_configuration["model"],
-        prompt = openAI_configuration["prompt"],
+        prompt = prompt,
         temperature = openAI_configuration["temperature"],
         max_tokens = openAI_configuration["max_tokens"],
         top_p = openAI_configuration["top_p"],
@@ -66,6 +70,7 @@ def generateContent(input):
             passageList.append(passagePrompt + response["choices"][0].text)
 
     passage = passage + "\n" + passageList[-1] + "\n"
+    story["passage"] = passage
 
     response = openai.Completion.create(
         model = openAI_configuration["model"],
@@ -91,10 +96,11 @@ def generateContent(input):
 
 @socketio.on('endContent')
 def endContent(input):
+    passage = _stories.get(request.sid, {}).get("passage", "")
+    if not passage:
+        emit("generation-error", {"message": "Generate a story before requesting a title"})
+        return
     time.sleep(1)
-    global passagePrompt 
-    global openAI_configuration
-    global passage
 
     response = openai.Completion.create(
         model = openAI_configuration["model"],
@@ -117,7 +123,11 @@ def endContent(input):
     version.predict(prompt=imagePrompt)
 
     emit('end-finished', {"title": response["choices"][0].text, "image": replicate.predictions.list()[0].output[0]})
-    pass
+
+
+@socketio.on('disconnect')
+def disconnect(reason=None):
+    _stories.pop(request.sid, None)
 
 if __name__ == "__main__":
     # app.run(debug=True)
