@@ -325,7 +325,7 @@
             deLoading();
         }
 
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        var socket = io.connect();
 
         // Action 1 -> Generate Content
         document.getElementById("generateStory").addEventListener('click', () => {
