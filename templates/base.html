@@ -327,6 +327,15 @@
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
+        socket.on('generation-error', function (data) {
+            deLoading();
+            document.getElementById("generator").style.visibility = "initial";
+            document.getElementById("generator").style.display = "";
+            document.getElementById("end-story").style.visibility = "initial";
+            document.getElementById("printView").style.visibility = "hidden";
+            document.getElementById("promptTitle").textContent = data.message;
+        });
+
         // Action 1 -> Generate Content
         document.getElementById("generateStory").addEventListener('click', () => {
             loading()
