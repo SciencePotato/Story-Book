@@ -364,7 +364,7 @@
             loading()
             document.getElementById("end-story").style.visibility = "hidden";
             document.getElementById("generator").style.visibility = "hidden";
-            document.getElementById("printView").style.visibility = "initial";
+            document.getElementById("printView").style.visibility = "hidden";
             document.getElementById("generator").style.display = "none";
             socket.emit("endContent", {data: "Null"});
         })
@@ -386,6 +386,7 @@
             divWrapper.appendChild(image);
             document.getElementById("story-Intro").appendChild(node);
             document.getElementById("story-Intro").appendChild(divWrapper);
+            document.getElementById("printView").style.visibility = "initial";
 
         })
 
